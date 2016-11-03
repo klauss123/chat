@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:hdp="http://www.springframework.org/schema/hadoop"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/hadoop http://www.springframework.org/schema/hadoop/spring-hadoop.xsd">
+
+    <bean id="springPropertyConfigurer" class="com.weimob.bs.utils.SpringPropertyConfigurerUtil">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>context.properties</value>
+                <value>redis.properties</value>
+            </list>
+        </property>
+        <property name="applicationName" value="weimob.soa-kf"/>
+    </bean>
+
+    <!--redis pool-->
+    <bean id="jedisPoolFactoryConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="500"/>
+        <property name="maxIdle" value="5"/>
+        <property name="maxWaitMillis" value="20000"/>
+        <property name="testOnBorrow" value="true"/>
+    </bean>
+
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="destroy">
+        <constructor-arg ref="jedisPoolFactoryConfig" name="poolConfig"/>
+        <constructor-arg value="${redis.ip}" name="host" type="java.lang.String"/>
+        <constructor-arg value="${redis.port}" name="port" type="int"/>
+        <constructor-arg value="10000" name="timeout" type="int"/>
+        <constructor-arg value="${redis.password}" name="password" type="java.lang.String"/>
+    </bean>
+
+    <!-- shard redis -->
+    <bean id="jedisShardInfo" class="redis.clients.jedis.JedisShardInfo">
+        <constructor-arg value="${redis.ip}" name="host" type="java.lang.String"/>
+        <constructor-arg value="${redis.port}" name="port" type="int"/>
+    </bean>
+
+    <bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool" destroy-method="destroy">
+        <constructor-arg ref="jedisPoolFactoryConfig" name="poolConfig"/>
+        <constructor-arg name="shards">
+            <list>
+                <ref bean="jedisShardInfo"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jedisHolder" class="com.weimob.bs.multidb.dao.redis.JedisHolder">
+        <property name="jedisPoolMap">
+            <map>
+                <entry key="default" value-ref="jedisPool"/>
+            </map>
+        </property>
+        <!--如果使用shard redis-->
+        <property name="shardedJedisPool" ref="shardedJedisPool"/>
+    </bean>
+
+    <context:component-scan base-package="com.weimob.bs.multidb.dao.redis"/>
+
+    <!--使用@Redis注解时必须加上-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+</beans>
