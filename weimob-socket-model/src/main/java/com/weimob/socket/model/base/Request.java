@@ -11,6 +11,8 @@ public class Request<T> implements Serializable {
     private String status;
     private String toUser;
     private String type;
+    private Long requestId;
+    private Integer aid;
     private T data;
 
     public String getFromUser() {
@@ -51,5 +53,21 @@ public class Request<T> implements Serializable {
 
     public void setData(T data) {
         this.data = data;
+    }
+
+    public Long getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(Long requestId) {
+        this.requestId = requestId;
+    }
+
+    public Integer getAid() {
+        return aid;
+    }
+
+    public void setAid(Integer aid) {
+        this.aid = aid;
     }
 }

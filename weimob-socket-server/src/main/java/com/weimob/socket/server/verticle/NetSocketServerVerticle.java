@@ -4,6 +4,7 @@ import com.weimob.bs.utils.ReturnCodeManagerUtil;
 import com.weimob.bs.utils.SerializeUtil;
 import com.weimob.socket.model.base.Request;
 import com.weimob.socket.model.base.Response;
+import com.weimob.socket.server.service.IChatMsgService;
 import com.weimob.socket.server.service.RequestProcessor;
 import com.weimob.socket.server.service.SocketService;
 import com.weimob.socket.server.utils.Common;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Component;
 public class NetSocketServerVerticle extends AbstractVerticle {
     @Autowired
     private SocketService socketService;
+    @Autowired
+    private IChatMsgService chatMsgService;
 
     @Override
     public void start() throws Exception {

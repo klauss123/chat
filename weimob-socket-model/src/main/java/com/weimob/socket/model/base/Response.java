@@ -5,12 +5,13 @@ import java.io.Serializable;
 /**
  * Created by dexin.su on 2016/10/11.
  */
-public class Response implements Serializable{
+public class Response<T> implements Serializable{
     private static final long serialVersionUID = 7149415550364551673L;
     private String returnCode;
     private String returnMsg;
     private String type;
-    private Request request;
+    private Long requestId;
+    private T data;
 
     public String getReturnCode() {
         return returnCode;
@@ -36,11 +37,19 @@ public class Response implements Serializable{
         this.type = type;
     }
 
-    public Request getRequest() {
-        return request;
+    public Long getRequestId() {
+        return requestId;
     }
 
-    public void setRequest(Request request) {
-        this.request = request;
+    public void setRequestId(Long requestId) {
+        this.requestId = requestId;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
     }
 }
